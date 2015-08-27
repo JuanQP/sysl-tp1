@@ -17,7 +17,7 @@ int main()
     int rechazadas = 0;
 
     /*Es el que se encarga de recorrer el archivo.*/
-    Procesar (&validas, &rechazadas);
+    
 
     /*Muestra los resultados finales.*/
     printf("\n\nValidas: %d\n", validas);
