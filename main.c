@@ -20,7 +20,7 @@ int main()
     int estado = 1;
     char letra;
     int proximoEstado;
-    int TT[3][3];
+    int TT[5][4];
 
     /*Va obteniendo caracteres uno por uno desde el archivo Input.*/
     letra = getchar();
@@ -28,13 +28,22 @@ int main()
     {
         proximoEstado = TT[estado][letra];
         
-        /*Si el proximoEstado es 100, entonces no es una cadena reconocida.*/
-        if (proximoEstado == 100)
+        /*Si el proximoEstado es 5, entonces no es una cadena reconocida.*/
+        if (proximoEstado == 5)
         {
             break;
         }
         estado = proximoEstado;
         letra = getchar();
+    }
+    if esAceptor(estado)
+    {
+        putchar(letra);
+        printf("Aceptado.\n");
+    }
+    else
+    {
+        printf("Error\n");
     }
 
     return 0;
