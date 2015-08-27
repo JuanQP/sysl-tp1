@@ -7,7 +7,7 @@
 int Transicion(int, char);
 void Procesar(int*, int*);
 
-/*Función principal.
+/*Función inicial.
 El programa se inicia leyendo el contenido de un archivo llamado "Input" en el directorio
 donde se encuentra main.c*/
 int main()
@@ -36,14 +36,7 @@ int main()
         estado = proximoEstado;
         letra = getchar();
     }
-    
-    
-    
-    
-    /*Muestra los resultados finales.*/
-    printf("\n\nValidas: %d\n", validas);
-    printf("Rechazadas: %d\n", rechazadas);
-    printf("Total de Cadenas: %d\n", validas+rechazadas);
+
     return 0;
 }
 
