@@ -15,10 +15,31 @@ int main()
     /*Contadores para saber cuantas cadenas se aceptaron o rechazaron.*/
     int validas = 0;
     int rechazadas = 0;
-
-    /*Es el que se encarga de recorrer el archivo.*/
     
+    /*Variables necesarias para saber el estado, y hacer la Tabla de Transición.*/
+    int estado = 1;
+    char letra;
+    int proximoEstado;
+    int TT[3][3];
 
+    /*Va obteniendo caracteres uno por uno desde el archivo Input.*/
+    letra = getchar();
+    while((letra = getchar()) != EOF)
+    {
+        proximoEstado = TT[estado][letra];
+        
+        /*Si el proximoEstado es 100, entonces no es una cadena reconocida.*/
+        if (proximoEstado == 100)
+        {
+            break;
+        }
+        estado = proximoEstado;
+        letra = getchar();
+    }
+    
+    
+    
+    
     /*Muestra los resultados finales.*/
     printf("\n\nValidas: %d\n", validas);
     printf("Rechazadas: %d\n", rechazadas);
