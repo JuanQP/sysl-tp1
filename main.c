@@ -4,10 +4,11 @@
 #include <ctype.h>
 
 /*Prototipos de función.*/
-int Transicion(int, char);
-void Procesar(int*, int*);
+int esAceptor(int);
+int columna(char);
+void encabezado();
 
-/*Función principal.
+/*Función inicial.
 El programa se inicia leyendo el contenido de un archivo llamado "Input" en el directorio
 donde se encuentra main.c*/
 int main()
@@ -15,116 +16,124 @@ int main()
     /*Contadores para saber cuantas cadenas se aceptaron o rechazaron.*/
     int validas = 0;
     int rechazadas = 0;
+    
+    /*Variables necesarias para saber el estado, y hacer la Tabla de Transición.*/
+    int estado = 0;
+    char letra;
+    int proximoEstado = 0;
+       
+    /*Inicializo Tabla de Transición.*/
+    int TT[6][5] = 
+    {{1, 2, 0, 4, 5},
+    {5, 2, 5, 5, 5},
+    {5, 2, 3, 3, 5},
+    {99, 99, 99, 99, 99},
+    {99, 99, 99 ,99, 99},
+    {5, 5, 0, 4, 5}};
 
-    /*Es el que se encarga de recorrer el archivo.*/
-    Procesar (&validas, &rechazadas);
+    /*Imprimo un encabezado.*/
+    encabezado();
 
-    /*Muestra los resultados finales.*/
-    printf("\n\nValidas: %d\n", validas);
-    printf("Rechazadas: %d\n", rechazadas);
-    printf("Total de Cadenas: %d\n", validas+rechazadas);
-    return 0;
-}
+    /*Leo el primer caracter.*/
+    letra = getchar();
 
-void Procesar (int *validas, int *rechazadas)
-{
-    /*Defino variables para contener la letra actual, el estado actual, el anterior y un contador de cadenas.*/
-	char letra;
-	int Estado = 0;
-	int EstadoAnterior = 0;
-	int CadenaNumero = 1;
-
-	/*Empiezo a leer letra por letra lo que contiene el archivo Input hasta el final de archivo.*/
-    while((letra = getchar()) != EOF)
-	{
-        /*Si el estado es 0 significa que se inició una nueva cadena,
-        así que el programa va a preguntar si el último estado fue 1
-        o si fue con una cadena con error (Estado 2).*/
-        if (Estado == 0)
-        {
-            if(EstadoAnterior == 1)
-            {
-                printf(" <--- ACEPTADA");
-                (*validas)++;
-            }
-            if(EstadoAnterior == 2)
-            {
-                printf(" <--- RECHAZADA");
-                (*rechazadas)++;
-            }
-            printf("\nCadena numero %d:\n", CadenaNumero);
-            CadenaNumero++;
-        }
-
-        /*Si la letra actual no es un #, o tampoco es una nueva línea, la imprimo.*/
-        if(letra != '#' && letra != '\n')
+    /*Mientras el estado sea distinto de "EOF Reconocido".*/
+    while(estado != 4)
+    {
+        /*Imprimo cualquier caracter excepto #, nueva línea o EOF.*/
+        if(letra != '#' && letra != '\n' && letra != '\0' && letra != EOF)
         {
             printf("%c", letra);
         }
-        /*Verifico en que estado se encuentra el caracter actual.*/
-        EstadoAnterior = Estado;
-		Estado = Transicion(Estado, letra);
+        
+        /*Verifico cuál es el próximo estado usando la tabla de transición.
+        uso el estado actual como fila, y la columna depende del caracter
+        que se esté leyendo.*/
+        proximoEstado = TT[estado][columna(letra)];
+        
+        /*Si está en el estado de error, y el próximo no lo es,
+        significa que finalizó de leerse la palabra rechazada, así que la contamos.
+        La única forma de salir del estado de error es con un # o con EOF.*/
+        if (estado == 5 && proximoEstado != 5)
+        {
+            printf(" <--- RECHAZADA\n");
+            rechazadas++;
+        }
+        
+        /*Si el próximo estado es aceptor y no es el fin de archivo,
+        entonces devuelvo ese centinela, y anoto que la cadena fue reconocida.
+        Dejo el próximo estado en 0 para que se inicie un nuevo reconocimiento.*/
+        if (esAceptor(proximoEstado) && proximoEstado != 4)
+        {
+            ungetc(letra, stdin);
+            proximoEstado = 0;
+            printf(" <--- ACEPTADA\n");
+            validas++;
+        }
+        estado = proximoEstado;
+        letra = getchar();
     }
+    
+    /*Informo cantidad de palabras reconocidas y rechazadas.*/
+    printf("\n");
+    printf("Reconocidas: %d\n", validas);
+    printf("Rechazadas : %d\n\n", rechazadas);
 
-    /*Una vez que se alcanzó el fin de archivo necesito saber el último estado.*/
-    if(EstadoAnterior == 1)
-    {
-        printf(" <--- ACEPTADA");
-        (*validas)++;
-    }
-    if(EstadoAnterior == 2)
-    {
-        printf(" <--- RECHAZADA");
-        (*rechazadas)++;
-    }
+    return 1;
 }
 
-/*Se encarga de verificar las transiciones.*/
-int Transicion (int Estado, char c)
+/*Informa si un estado es aceptor o no. Los estados 3 y 4 son los estados aceptores.*/
+int esAceptor(int estado)
 {
-    switch (Estado)
-	{
-        case 0:
-            if(c == '+' || c == '-')
-            {
-                return 1;
-            }
-            if(isdigit(c))
-            {
-                return 1;
-            }
-            if(c == '#')
-            {
-                return 0;
-            }
-            /*Si llegó hasta acá es porque no es ni un número, ni #, ni + o -*/
-            return 2;
-
-        case 1:
-            if(c == '+' || c == '-')
-            {
-                return 2;
-            }
-            if(isdigit(c))
-            {
-                return 1;
-            }
-            if(c == '#' || c == '\0')
-            {
-                return 0;
-            }
-            /*Si llegó hasta acá es porque no es ni un número, ni #, ni + o -*/
-            return 2;
-
-        case 2:
-            if(c == '#' || c == '\0')
-            {
-                return 0;
-            }
-            /*Si llegó hasta acá es porque no es ni un número, ni #, ni + o -*/
-            return 2;
-	}
-
-	/*Ocurrió algún error.*/
-	return 2;
+    switch (estado)
+    {
+        case 3:
+        case 4:
+            return 1;
+        default:
+            break;
+    }
+    return 0;
 }
+
+/*Informa en qué columna de la tabla de transición va el siguiente caracter.*/
+int columna(char letra)
+{
+    /*Si es dígito va a la columna 1.*/
+    if(isdigit(letra))
+    {
+        return 1;
+    }
+
+    /*Si es signo, va a la columna 0.*/
+    if(letra == '+' || letra == '-')
+    {
+        return 0;
+    }
+
+    /*Si es un # va a la columna 2.*/
+    if(letra == '#')
+    {
+        return 2;
+    }
+
+    /*Si es EOF o nueva línea va a la columna 3.*/
+    if(letra == EOF || letra == '\n')
+    {
+        return 3;
+    }
+    
+    /*Si llegó acá es porque es "cualquier otra cosa".*/
+    return 4;
+}
+
+/*Imprimo un encabezado con la firma del grupo y curso.*/
+void encabezado()
+{
+    printf("Sintaxis y Semantica de los Lenguajes - UTN\n");
+    printf("Curso K2055 - Grupo 3\n");
+    printf("Trabajo Practico 1\n");
+    printf("\n");
+}
+
+
