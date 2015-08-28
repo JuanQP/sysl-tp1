@@ -1,0 +1,14 @@
+T	Signo	Numero	#	EOF	Otro
+0-:	1	2	0	4	5
+1 :	5	2	5	5	5
+2 :	5	2	3	3	5
+3+:	99	99	99	99	99			
+4+:	99	99	99	99	99		
+5 :	5	5	0	4	5
+
+0: Estado inicial.
+1: Se introdujo signo, se espera a que continúe con un número.
+2: Se ingresó al menos 1 número.
+3: Número reconocido, ya sea por # o por EOF.
+4: EOF reconocido.
+5: Estado de error.
